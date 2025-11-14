@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Free image resizing and blurring tool</title>
+    <meta name="description" content="A free online tool to instantly resize, blur, and compress images. Optimize JPG, PNG, and WEBP files directly in your browser—no uploads required." />
+
+    <style>
+      body {
+        background: #111;
+        color: #eee;
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+      }
+
+      .container {
+        max-width: 900px;
+        width: 100%;
+      }
+
+      h1 {
+        text-align: center;
+        font-weight: 300;
+        margin-bottom: 25px;
+      }
+
+      #dropZone {
+        border: 2px dashed #555;
+        padding: 40px;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.25s;
+        background: #1a1a1a;
+      }
+
+      #dropZone.hover {
+        border-color: #aaa;
+        background: #222;
+      }
+
+      #dropZone p {
+        font-size: 18px;
+        opacity: 0.8;
+      }
+
+      .format {
+        margin-top: 40px;
+        display: flex;
+        /* justify-content: center; */
+        align-items: center;
+        gap: 10px;
+        /* background-color: darkblue; */
+
+        > label {
+          opacity: 0.8;
+        }
+
+        > #formatSelect {
+        /* margin-top: 20px; */
+        background: #222;
+        color: #eee;
+        border: 1px solid #555;
+        border-radius: 6px;
+        padding: 8px;
+      }
+      }
+      
+      input[type="file"] {
+        display: none;
+      }
+
+      #previewBlock img {
+        width: 100%;
+        border-radius: 8px;
+        margin-top: 20px;
+      }
+
+      .filesize {
+        font-size: 14px;
+        opacity: 0.7;
+        margin-top: 6px;
+      }
+
+
+      #processBtn {
+        margin-top: 20px;
+        padding: 12px 20px;
+        background: #333;
+        color: #eee;
+        border: 1px solid #555;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: 0.2s;
+        display: none;
+      }
+
+      #processBtn:hover {
+        background: #444;
+      }
+
+      .result-block {
+        background: #1a1a1a;
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      .result-block img {
+        width: 100%;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+
+      a {
+        color: #4ea3ff;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Free Image Resizing and Blurring Tool",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "Any (Web-based)",
+        "offers": {
+          "@type": "Offer",
+          "price": "0"
+        },
+        "description": "A free online tool to instantly resize, blur, and compress images (JPG, PNG, WEBP) directly in your browser.",
+        "url": "https://your-website-url.com" 
+}
+</script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Free Online Image Resizer and Blurring Tool</h1>
+
+      <div id="dropZone">
+        <p>Drag & Drop an Image Here<br />or<br />Click to Select</p>
+        <input type="file" id="imageInput" accept="image/*" />
+      </div>
+
+      
+      <div class="format">
+        <label for="formatSelect">Output format:</label>
+        <select id="formatSelect">
+          <option value="image/jpeg">JPG</option>
+          <option value="image/png">PNG</option>
+          <option value="image/webp">WEBP</option>
+        </select>
+      </div>
+
+      <div id="previewBlock"></div>
+
+      <button id="processBtn">Process Image</button>
+
+      <div id="output"></div>
+    </div>
+
+    <script>
+      let selectedFile = null;
+
+      function formatKB(bytes) {
+        return (bytes / 1024).toFixed(2) + " KB";
+      }
+
+      function loadImage(file) {
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function resizeImage(img, targetWidth) {
+        const ratio = targetWidth / img.width;
+        const canvas = document.createElement("canvas");
+        canvas.width = targetWidth;
+        canvas.height = img.height * ratio;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        return canvas;
+      }
+
+      function originalCanvas(img) {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        return canvas;
+      }
+
+      function applyBlur(canvas, amount = 15) {
+        const blurredCanvas = document.createElement("canvas");
+        blurredCanvas.width = canvas.width;
+        blurredCanvas.height = canvas.height;
+        const ctx = blurredCanvas.getContext("2d");
+        ctx.filter = `blur(${amount}px)`;
+        ctx.drawImage(canvas, 0, 0);
+        return blurredCanvas;
+      }
+
+      function compressCanvas(canvas, format, quality = 0.75) {
+        return new Promise((resolve) => {
+          canvas.toBlob(
+            (blob) => resolve(blob),
+            format,
+            format === "image/png" ? undefined : quality
+          );
+        });
+      }
+
+      function createDownloadLink(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        return `<p><a href="${url}" download="${filename}">Download ${filename}</a></p>`;
+      }
+
+      function showPreview(file) {
+        const preview = document.getElementById("previewBlock");
+        const btn = document.getElementById("processBtn");
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          preview.innerHTML = `
+            <img src="${e.target.result}" />
+            <div class="filesize">Original size: ${formatKB(file.size)}</div>
+        `;
+          btn.style.display = "inline-block";
+        };
+        reader.readAsDataURL(file);
+      }
+
+      async function processImage() {
+        if (!selectedFile) return;
+
+        const output = document.getElementById("output");
+        const format = document.getElementById("formatSelect").value;
+        const ext =
+          format === "image/jpeg"
+            ? "jpg"
+            : format === "image/png"
+            ? "png"
+            : "webp";
+
+        output.innerHTML = "Processing...";
+
+        const img = await loadImage(selectedFile);
+        const baseName = selectedFile.name.replace(/\.[^/.]+$/, "");
+
+        const origCanvas = originalCanvas(img);
+        const desktopCanvas = applyBlur(resizeImage(img, img.width));
+        const mobileCanvas = resizeImage(img, 640);
+        const mobileBlurCanvas = applyBlur(mobileCanvas);
+
+        const origBlob = await compressCanvas(origCanvas, format);
+        const deskBlob = await compressCanvas(desktopCanvas, format);
+        const mobBlob = await compressCanvas(mobileCanvas, format);
+        const mobBlurBlob = await compressCanvas(mobileBlurCanvas, format);
+
+        const origURL = URL.createObjectURL(origBlob);
+        const deskURL = URL.createObjectURL(deskBlob);
+        const mobURL = URL.createObjectURL(mobBlob);
+        const mobBlurURL = URL.createObjectURL(mobBlurBlob);
+
+        output.innerHTML = `
+        <div class="result-block">
+            <h3>Compressed Original</h3>
+            <img src="${origURL}" />
+            <div class="filesize">Size: ${formatKB(origBlob.size)}</div>
+            ${createDownloadLink(
+              origBlob,
+              baseName + "-original-compressed." + ext
+            )}
+        </div>
+
+        <div class="result-block">
+            <h3>Blurred Desktop</h3>
+            <img src="${deskURL}" />
+            <div class="filesize">Size: ${formatKB(deskBlob.size)}</div>
+            ${createDownloadLink(
+              deskBlob,
+              baseName + "-blurred-desktop." + ext
+            )}
+        </div>
+
+        <div class="result-block">
+            <h3>Mobile (640px)</h3>
+            <img src="${mobURL}" />
+            <div class="filesize">Size: ${formatKB(mobBlob.size)}</div>
+            ${createDownloadLink(mobBlob, baseName + "-mobile." + ext)}
+        </div>
+
+        <div class="result-block">
+            <h3>Mobile Blurred (640px)</h3>
+            <img src="${mobBlurURL}" />
+            <div class="filesize">Size: ${formatKB(mobBlurBlob.size)}</div>
+            ${createDownloadLink(
+              mobBlurBlob,
+              baseName + "-mobile-blurred." + ext
+            )}
+        </div>
+    `;
+      }
+
+      const dropZone = document.getElementById("dropZone");
+      const fileInput = document.getElementById("imageInput");
+      const processBtn = document.getElementById("processBtn");
+
+      dropZone.addEventListener("click", () => fileInput.click());
+
+      fileInput.addEventListener("change", (e) => {
+        selectedFile = e.target.files[0];
+        showPreview(selectedFile);
+      });
+
+      dropZone.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        dropZone.classList.add("hover");
+      });
+
+      dropZone.addEventListener("dragleave", () => {
+        dropZone.classList.remove("hover");
+      });
+
+      dropZone.addEventListener("drop", (e) => {
+        e.preventDefault();
+        dropZone.classList.remove("hover");
+        selectedFile = e.dataTransfer.files[0];
+        showPreview(selectedFile);
+      });
+
+      processBtn.addEventListener("click", processImage);
+    </script>
+  </body>
+</html>

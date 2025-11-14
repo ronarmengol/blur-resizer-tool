@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FAQ - Image Processor</title>
+    <meta
+      name="description"
+      content="Frequently Asked Questions (FAQ) about our free, in-browser image resizing and blurring tool. Learn about privacy, supported formats, and more."
+    />
+
+    <style>
+      body {
+        background: #111;
+        color: #eee;
+        font-family: Arial, sans-serif;
+        padding: 0;
+        margin: 0;
+      }
+
+      /* ===== NAVBAR STYLES ===== */
+      .navbar {
+        background: #1a1a1a;
+        border-bottom: 1px solid #333;
+        padding: 0 40px;
+        width: 100%;
+        box-sizing: border-box;
+      }
+
+      .nav-container {
+        max-width: 900px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 60px;
+      }
+
+      .nav-brand {
+        color: #eee;
+        font-size: 22px;
+        font-weight: bold;
+        text-decoration: none;
+        opacity: 0.9;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 15px;
+      }
+
+      .nav-link {
+        color: #aaa;
+        text-decoration: none;
+        font-size: 16px;
+        padding: 8px 12px;
+        border-radius: 6px;
+        transition: 0.2s;
+      }
+
+      .nav-link:hover {
+        background: #333;
+        color: #eee;
+        text-decoration: none;
+      }
+
+      .nav-link.active {
+        background: #333;
+        color: #fff;
+        font-weight: bold;
+      }
+      /* ========================== */
+
+      .container {
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto; /* Center the container */
+        padding: 40px 20px; /* Add padding here */
+        box-sizing: border-box;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-weight: 300;
+      }
+
+      h1 {
+        text-align: center;
+        font-weight: 300;
+        margin-bottom: 25px;
+      }
+
+      .result-block {
+        background: #1a1a1a;
+        margin-top: 30px;
+        padding: 20px 30px;
+        border-radius: 8px;
+        line-height: 1.6;
+      }
+
+      a {
+        color: #4ea3ff;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-container">
+        <a href="index.html" class="nav-brand">ImageProcessor</a>
+        <div class="nav-links">
+          <a href="index.html" class="nav-link">Tool</a>
+          <a href="faq.html" class="nav-link active">FAQ</a>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <h1>Frequently Asked Questions</h1>
+
+      <div class="result-block">
+        <h3>🔏 Are my images uploaded to a server?</h3>
+        <p>
+          <strong>No. Absolutely not.</strong> Your privacy is our top
+          priority. All processing (resizing, blurring, and compression)
+          happens 100% in your local browser. Your images never leave your
+          computer.
+        </p>
+      </div>
+
+      <div class="result-block">
+        <h3>💰 Is this tool completely free?</h3>
+        <p>
+          Yes. This tool is 100% free to use. There are no limits, sign-ups,
+          or hidden costs.
+        </p>
+      </div>
+
+      <div class="result-block">
+        <h3>🖼️ What image formats do you support?</h3>
+        <p>
+          You can upload most common image formats, like
+          <strong>JPG, PNG, GIF, and WEBP</strong>. You can choose to
+          export your processed images as <strong>JPG, PNG, or WEBP</strong>
+          using the "Output format" dropdown on the tool page.
+        </p>
+      </div>
+
+      <div class="result-block">
+        <h3>🤔 What do the different output images mean?</h3>
+        <ul>
+          <li>
+            <strong>Compressed Original:</strong> This is your original image,
+            run through a compression algorithm. It keeps the same
+            dimensions but should have a smaller file size.
+          </li>
+          <li>
+            <strong>Blurred Desktop:</strong> This is your original image,
+            also compressed, with a 15px blur filter applied.
+          </li>
+          <li>
+            <strong>Mobile (640px):</strong> Your image is resized so its
+            width is 640 pixels, and it is compressed.
+          </li>
+          <li>
+            <strong>Mobile Blurred (640px):</strong> Your image is resized
+            to 640px wide, a 15px blur is applied, and it is compressed.
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>
